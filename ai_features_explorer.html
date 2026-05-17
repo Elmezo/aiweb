@@ -1,0 +1,233 @@
+
+<h2 class="sr-only">استكشاف ميزات الذكاء الاصطناعي في أنظمة الإدارة</h2>
+<style>
+  .ai-explorer { direction: rtl; font-family: var(--font-sans); padding: 1rem 0; }
+  .cat-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .tab-btn { font-size: 13px; padding: 6px 14px; border-radius: 20px; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-secondary); color: var(--color-text-secondary); cursor: pointer; transition: all 0.15s; }
+  .tab-btn.active { background: #1F3864; color: #fff; border-color: #1F3864; }
+  .tool-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+  .tool-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; }
+  .tool-header { padding: 12px 14px; display: flex; align-items: center; gap: 10px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .tool-rank { font-size: 16px; }
+  .tool-name { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+  .tool-sub { font-size: 11px; color: var(--color-text-secondary); }
+  .ai-list { padding: 10px 14px; display: flex; flex-direction: column; gap: 8px; }
+  .ai-feature { display: flex; gap: 10px; align-items: flex-start; }
+  .ai-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 15px; }
+  .ai-text { flex: 1; }
+  .ai-name { font-size: 12px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 2px; }
+  .ai-desc { font-size: 11px; color: var(--color-text-secondary); line-height: 1.5; }
+  .ai-tag { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 10px; margin-top: 3px; font-weight: 500; }
+  .tag-predict { background: #E8F0FE; color: #1a5faa; }
+  .tag-auto { background: #E8F5E9; color: #2e7d32; }
+  .tag-nlp { background: #F3E5F5; color: #6a1b9a; }
+  .tag-score { background: #FFF8E1; color: #8a6200; }
+  .tag-detect { background: #FCE4EC; color: #ad1457; }
+  .tag-gen { background: #E0F7FA; color: #006064; }
+  .limited { background: var(--color-background-secondary); }
+  .limited .tool-header { opacity: 0.8; }
+</style>
+<div class="ai-explorer">
+  <div class="cat-tabs" id="tabs"></div>
+  <div class="tool-grid" id="grid"></div>
+</div>
+<script>
+const data = {
+  "CRM": [
+    { rank:"🥇", name:"Salesforce CRM", sub:"Einstein AI Platform", features:[
+      { icon:"🧠", name:"Einstein Predictive Lead Scoring", desc:"بيحلل بيانات العملاء ويديك score لكل lead عشان تعرف مين الأكثر احتمالاً يشتري", tag:"tag-predict", label:"Predictive" },
+      { icon:"🤖", name:"Einstein Chatbot", desc:"بيرد على استفسارات العملاء تلقائياً ويحل المشاكل البسيطة بدون تدخل بشري", tag:"tag-auto", label:"Automation" },
+      { icon:"🔮", name:"Opportunity Insights", desc:"بيتنبأ بإمكانية إغلاق الصفقة ويقترح الخطوة الجاية في عملية البيع", tag:"tag-predict", label:"Predictive" }
+    ]},
+    { rank:"🥈", name:"Microsoft Dynamics 365", sub:"Copilot AI + Azure OpenAI", features:[
+      { icon:"✍️", name:"Copilot AI Assistant", desc:"بيكتب إيميلات للعملاء، يلخص اجتماعات، ويقترح ردود ذكية بناءً على سياق المحادثة", tag:"tag-gen", label:"Generative AI" },
+      { icon:"📊", name:"Predictive Analytics", desc:"يتنبأ بالإيرادات المستقبلية ويحدد العملاء اللي ممكن يتركوا الخدمة (Churn Prediction)", tag:"tag-predict", label:"Predictive" },
+      { icon:"🗣️", name:"Azure OpenAI Integration", desc:"بيفهم الأسئلة بالغة الطبيعية ويجاوب على استفسارات البيانات بدون SQL", tag:"tag-nlp", label:"NLP" }
+    ]},
+    { rank:"🥉", name:"HubSpot CRM", sub:"AI Content + ChatSpot", features:[
+      { icon:"✍️", name:"AI Content Writer", desc:"بيكتب إيميلات تسويقية ومنشورات سوشيال ميديا ومحتوى موقع بضغطة واحدة", tag:"tag-gen", label:"Generative AI" },
+      { icon:"🤖", name:"ChatSpot Bot", desc:"مساعد ذكاء اصطناعي تقدر تكلمه بالعربي أو الإنجليزي وتسأله عن بيانات CRM وهو يجيبك", tag:"tag-nlp", label:"NLP" },
+      { icon:"🎯", name:"Predictive Lead Scoring", desc:"بيرتب الـ leads تلقائياً حسب احتمالية التحويل بناءً على سلوكهم على الموقع والإيميل", tag:"tag-predict", label:"Predictive" }
+    ]},
+    { rank:"4", name:"Zoho CRM", sub:"Zia AI Assistant", features:[
+      { icon:"🧠", name:"Zia AI Assistant", desc:"مساعد ذكاء اصطناعي بيجاوب على أسئلتك عن المبيعات، يقترح وقت التواصل الأمثل مع كل عميل", tag:"tag-nlp", label:"NLP" },
+      { icon:"⚠️", name:"Anomaly Detection", desc:"بيكشف الشذوذ في بيانات المبيعات ويبلغك لو في trend غريبة زي انخفاض مفاجئ في الأداء", tag:"tag-detect", label:"Detection" },
+      { icon:"🤖", name:"Chatbot Builder", desc:"بتبني chatbots للعملاء بدون كود، بيشتغل على موقعك وعلى واتساب وغيره", tag:"tag-auto", label:"Automation" }
+    ]},
+    { rank:"5", name:"Pipedrive", sub:"AI Sales Assistant", features:[
+      { icon:"💡", name:"AI Sales Assistant", desc:"بينصحك بالخطوة الجاية لكل صفقة بناءً على تاريخ التفاعل، ويرسلك تنبيهات لو صفقة محتاجة اهتمام", tag:"tag-predict", label:"Predictive" },
+      { icon:"🎯", name:"Deal Scoring", desc:"بيديك نقاط لكل صفقة بناءً على احتمالية الإغلاق عشان تحدد فين تركز وقتك", tag:"tag-score", label:"Scoring" }
+    ]},
+    { rank:"6", name:"Odoo CRM", sub:"AI Forecasting", features:[
+      { icon:"🔮", name:"AI Sales Forecasting", desc:"بيتنبأ بإيرادات الشهر القادم بناءً على pipeline الحالي والبيانات التاريخية", tag:"tag-predict", label:"Predictive" },
+      { icon:"⭐", name:"Smart Lead Scoring", desc:"بيرتب الـ leads تلقائياً بناءً على مصدرها وتاريخ التفاعل وحجم الفرصة", tag:"tag-score", label:"Scoring" }
+    ]}
+  ],
+  "CMS": [
+    { rank:"🥇", name:"WordPress", sub:"AI Plugins Ecosystem", features:[
+      { icon:"✍️", name:"Jetpack AI Assistant", desc:"بيكتب ويعدل محتوى الموقع مباشرة في محرر WordPress، ويقترح تحسينات للكتابة", tag:"tag-gen", label:"Generative AI" },
+      { icon:"🔍", name:"AI SEO Tools", desc:"بيحلل المحتوى ويقترح keywords وتحسينات لمحركات البحث لرفع ترتيبك على Google", tag:"tag-auto", label:"Automation" },
+      { icon:"🤖", name:"AI Chatbot Plugins", desc:"بتضيف chatbot ذكي على موقعك يرد على زوارك ويوجههم للمحتوى المناسب", tag:"tag-nlp", label:"NLP" }
+    ]},
+    { rank:"🥈", name:"Shopify", sub:"Shopify Magic AI", features:[
+      { icon:"✍️", name:"Shopify Magic - Product Descriptions", desc:"بيكتب وصف احترافي لمنتجاتك تلقائياً من اسم المنتج والصورة فقط، يوفر ساعات من الكتابة", tag:"tag-gen", label:"Generative AI" },
+      { icon:"🤖", name:"Sidekick AI Chatbot", desc:"مساعد ذكي جوه المتجر يجاوب على أسئلة العملاء ويساعدهم في الاختيار والشراء", tag:"tag-nlp", label:"NLP" },
+      { icon:"📊", name:"AI Analytics Insights", desc:"يحلل بيانات المتجر ويقدم توصيات عملية لزيادة المبيعات وتحسين تجربة العميل", tag:"tag-predict", label:"Predictive" }
+    ]},
+    { rank:"🥉", name:"Drupal", sub:"AI Modules + NLP", features:[
+      { icon:"🗣️", name:"NLP Content Processing", desc:"بيفهم ويصنف المحتوى تلقائياً، يضيف tags مناسبة، ويرتب المقالات بناءً على موضوعها", tag:"tag-nlp", label:"NLP" },
+      { icon:"🔍", name:"AI Search Enhancement", desc:"بيحسن نتائج البحث الداخلي للموقع بفهم نية المستخدم مش بس الكلمات المطابقة", tag:"tag-nlp", label:"NLP" }
+    ]},
+    { rank:"4", name:"Wix", sub:"Wix ADI + AI Tools", features:[
+      { icon:"🎨", name:"Wix ADI Site Generator", desc:"بيبني موقع كامل باحترافية من بضعة أسئلة بسيطة عن نشاطك، بدون أي تصميم يدوي", tag:"tag-gen", label:"Generative AI" },
+      { icon:"🤖", name:"Wix Chat AI", desc:"chatbot ذكي للموقع يرد على زوارك ويجمع بيانات العملاء المحتملين تلقائياً", tag:"tag-auto", label:"Automation" }
+    ]},
+    { rank:"5", name:"HubSpot CMS Hub", sub:"AI Content + Smart Content", features:[
+      { icon:"✍️", name:"AI Content Assistant", desc:"بيكتب ويحرر محتوى الصفحات والبلوج والـ CTAs مباشرة في المحرر بناءً على تعليماتك", tag:"tag-gen", label:"Generative AI" },
+      { icon:"👤", name:"Smart Content Personalization", desc:"بيعرض محتوى مختلف لكل زائر بناءً على بياناته في CRM، المشتري الجديد يشوف غير المشتري القديم", tag:"tag-predict", label:"Predictive" }
+    ]}
+  ],
+  "Project Mgmt": [
+    { rank:"🥇", name:"Jira", sub:"Atlassian Intelligence", features:[
+      { icon:"📝", name:"AI Issue Summarizer", desc:"بيلخص تفاصيل الـ tickets والمناقشات الطويلة في نقاط واضحة، بدون ما تقرأ كل التعليقات", tag:"tag-gen", label:"Generative AI" },
+      { icon:"🤖", name:"Virtual Agent", desc:"بيجاوب على أسئلة الفريق عن المشروع ويساعد في إيجاد المعلومات من تاريخ الـ issues", tag:"tag-nlp", label:"NLP" },
+      { icon:"🔮", name:"Sprint Planning AI", desc:"يتنبأ بالوقت المطلوب لكل مهمة بناءً على بيانات السبرينتس السابقة ويساعد في التخطيط الواقعي", tag:"tag-predict", label:"Predictive" }
+    ]},
+    { rank:"🥈", name:"Asana", sub:"Asana AI", features:[
+      { icon:"🎯", name:"Smart Goals", desc:"بيساعدك تكتب أهداف واضحة وقابلة للقياس (OKRs) ويربطها بالمهام الفعلية على المشروع", tag:"tag-gen", label:"Generative AI" },
+      { icon:"📊", name:"AI Status Updates", desc:"بيكتب تقرير حالة المشروع تلقائياً من بيانات المهام المكتملة والمتأخرة، يوفر وقت الاجتماعات", tag:"tag-auto", label:"Automation" }
+    ]},
+    { rank:"🥉", name:"Monday.com", sub:"monday AI", features:[
+      { icon:"⚡", name:"AI Automation Builder", desc:"بتوصف الـ automation اللي عايزها بالكلام العادي وهو يبنيها ليك، بدون ما تفهم في قواعد الـ automation", tag:"tag-gen", label:"Generative AI" },
+      { icon:"📝", name:"AI Summary", desc:"بيلخص أي board أو مشروع في جملتين أو تلاتة توضح الحالة الحالية والمخاطر", tag:"tag-auto", label:"Automation" }
+    ]},
+    { rank:"4", name:"Trello", sub:"Atlassian Intelligence + Butler", features:[
+      { icon:"⚡", name:"Butler AI Automation", desc:"بيكتب الـ automation rules بالغة الطبيعية، زي 'لما بطاقة تنتقل لـ Done، بعت إيميل للعميل'", tag:"tag-auto", label:"Automation" },
+      { icon:"🧠", name:"Atlassian Intelligence", desc:"نفس ذكاء Jira لكن بشكل أبسط، بيساعد في كتابة وصف المهام وتلخيص النشاط", tag:"tag-gen", label:"Generative AI" }
+    ]},
+    { rank:"5", name:"ClickUp", sub:"ClickUp AI", features:[
+      { icon:"✍️", name:"AI Writing Assistant", desc:"بيكتب أوصاف المهام، تقارير المشروع، إيميلات الفريق، وأي محتوى نصي جوه التطبيق مباشرة", tag:"tag-gen", label:"Generative AI" },
+      { icon:"📝", name:"AI Summarizer", desc:"بيلخص المحادثات الطويلة في الـ threads والـ docs في نقاط رئيسية، ومين قال إيه ومين مسؤول عن إيه", tag:"tag-auto", label:"Automation" }
+    ]}
+  ],
+  "SIS": [
+    { rank:"🥇", name:"PowerSchool SIS", sub:"AI Analytics Platform", features:[
+      { icon:"⚠️", name:"Early Warning System", desc:"بيكتشف الطالب اللي ممكن يرسب أو يترك المدرسة قبل حدوث المشكلة بأسابيع، بناءً على الحضور والدرجات", tag:"tag-detect", label:"Detection" },
+      { icon:"📊", name:"Predictive Insights", desc:"بيتنبأ بأداء الطالب في الفصل القادم ويقترح تدخلات مناسبة لكل طالب بشكل فردي", tag:"tag-predict", label:"Predictive" }
+    ]},
+    { rank:"🥈", name:"Ellucian Banner", sub:"Ellucian Ethos AI", features:[
+      { icon:"🎯", name:"Student Success Prediction", desc:"بيحدد الطلاب اللي في خطر أكاديمي مبكراً ويقترح على المرشد الأكاديمي التدخل المناسب", tag:"tag-predict", label:"Predictive" },
+      { icon:"📊", name:"Enrollment Analytics", desc:"بيتنبأ بالتسجيل للفصل الجاي ويساعد في تخطيط الموارد والجداول الدراسية بدقة أعلى", tag:"tag-predict", label:"Predictive" }
+    ]},
+    { rank:"🥉", name:"Skyward SIS", sub:"AI Reporting + Smart Alerts", features:[
+      { icon:"🔔", name:"Smart Alerts", desc:"بيبعت تنبيهات ذكية للمعلمين وأولياء الأمور عند أي تغيير مهم في أداء الطالب أو حضوره", tag:"tag-auto", label:"Automation" },
+      { icon:"📊", name:"AI Reporting", desc:"بينشئ تقارير تلقائية عن أداء المدرسة وإرسالها لمتخذي القرار بالشكل المناسب لكل جهة", tag:"tag-auto", label:"Automation" }
+    ]},
+    { rank:"4", name:"Blackbaud SIS", sub:"Blackbaud Intelligence", features:[
+      { icon:"💰", name:"AI Fundraising Intelligence", desc:"بيحدد من خريجي المدرسة أو أولياء الأمور الأكثر احتمالاً للتبرع ويقترح المبلغ والتوقيت المناسب", tag:"tag-predict", label:"Predictive" },
+      { icon:"📊", name:"Student Analytics", desc:"بيربط بيانات الأداء الأكاديمي مع المشاركة في الأنشطة لرسم صورة كاملة عن كل طالب", tag:"tag-predict", label:"Predictive" }
+    ]},
+    { rank:"5", name:"Workday Student", sub:"Workday AI + ML", features:[
+      { icon:"🔮", name:"ML Enrollment Insights", desc:"بيتعلم من بيانات التسجيل التاريخية ويتنبأ بكورسات الطلب العالي لتجنب الـ waitlists", tag:"tag-predict", label:"Predictive" },
+      { icon:"📊", name:"Predictive Analytics", desc:"تحليلات شاملة تربط أداء الطالب بالمتغيرات المختلفة لاكتشاف العوامل المؤثرة على النجاح", tag:"tag-predict", label:"Predictive" }
+    ]}
+  ],
+  "Inventory": [
+    { rank:"🥇", name:"Oracle NetSuite", sub:"AI Demand Planning", features:[
+      { icon:"🔮", name:"AI Demand Forecasting", desc:"بيتنبأ بالطلب المستقبلي على كل منتج بدقة عالية بناءً على الموسمية والtrends والبيانات التاريخية", tag:"tag-predict", label:"Predictive" },
+      { icon:"🔔", name:"Intelligent Alerts", desc:"بيبعت تنبيهات تلقائية لما مخزون منتج يوصل للحد الأدنى أو لو في شذوذ في حركة المخزون", tag:"tag-detect", label:"Detection" },
+      { icon:"🧠", name:"ML Inventory Optimization", desc:"بيحسب الكمية المثلى للطلب والتوقيت الأفضل بناءً على تكاليف التخزين وبيانات الموردين", tag:"tag-predict", label:"Predictive" }
+    ]},
+    { rank:"🥈", name:"Zoho Inventory", sub:"Zia AI", features:[
+      { icon:"🔄", name:"Smart Reorder Points", desc:"بيحسب تلقائياً متى وكام تطلب من كل مورد بناءً على متوسط المبيعات ووقت التسليم", tag:"tag-auto", label:"Automation" },
+      { icon:"🧠", name:"Zia Sales Predictions", desc:"بيتنبأ بالمنتجات الأكثر مبيعاً في الفترات القادمة عشان تجهز مخزون كافي", tag:"tag-predict", label:"Predictive" }
+    ]},
+    { rank:"🥉", name:"Fishbowl Inventory", sub:"Basic Automation", limited:true, features:[
+      { icon:"🔔", name:"Reorder Alerts", desc:"تنبيهات بسيطة لما المخزون ينخفض عن حد معين، مش AI حقيقي لكن أتمتة قواعدية", tag:"tag-auto", label:"Automation" }
+    ]},
+    { rank:"4", name:"Cin7", sub:"AI Forecasting", features:[
+      { icon:"🔮", name:"AI Demand Forecasting", desc:"بيتنبأ بالطلب لكل منتج في كل قناة بيع سواء أونلاين أو محل فعلي أو wholesale", tag:"tag-predict", label:"Predictive" },
+      { icon:"⚡", name:"Smart Automation", desc:"بيعمل automation ذكي لعمليات المخزون زي تحديث الكميات تلقائياً عبر كل القنوات في نفس الوقت", tag:"tag-auto", label:"Automation" }
+    ]},
+    { rank:"5", name:"Odoo Inventory", sub:"AI Demand Forecasting", features:[
+      { icon:"🔮", name:"AI Demand Forecasting", desc:"خوارزميات ML تتنبأ بالطلب المستقبلي وتقترح أوامر الشراء تلقائياً قبل نفاد المخزون", tag:"tag-predict", label:"Predictive" },
+      { icon:"🏭", name:"MRP Intelligence", desc:"تخطيط ذكي لمتطلبات التصنيع بيحسب المواد الخام المطلوبة بناءً على أوامر الإنتاج المجدولة", tag:"tag-auto", label:"Automation" }
+    ]}
+  ],
+  "Attendance": [
+    { rank:"🥇", name:"UKG Ready (Kronos)", sub:"UKG Bryte AI", features:[
+      { icon:"📅", name:"AI Scheduling", desc:"بيبني جداول العمل تلقائياً مع مراعاة متطلبات الامتثال وتفضيلات الموظفين وقواعد النقابات", tag:"tag-auto", label:"Automation" },
+      { icon:"🔮", name:"Predictive Analytics", desc:"بيتنبأ بغياب الموظفين قبل حدوثه ويقترح بدائل من الجدول عشان تحافظ على الإنتاجية", tag:"tag-predict", label:"Predictive" }
+    ]},
+    { rank:"🥈", name:"ADP Workforce Now", sub:"ADP Assist AI", features:[
+      { icon:"🤖", name:"ADP Assist Chatbot", desc:"مساعد ذكاء اصطناعي يجاوب على أسئلة الموظفين عن الرواتب والإجازات والامتثال بدون تدخل HR", tag:"tag-nlp", label:"NLP" },
+      { icon:"⚖️", name:"Predictive Compliance", desc:"بيراقب قوانين العمل ويبلغك مسبقاً لو في تغيير قانوني ممكن يؤثر على طريقة احتساب رواتبك", tag:"tag-predict", label:"Predictive" }
+    ]},
+    { rank:"🥉", name:"BambooHR", sub:"AI Reporting", features:[
+      { icon:"📊", name:"AI HR Analytics", desc:"بيحلل بيانات الموظفين ويكتشف patterns مثيرة للاهتمام زي الأقسام الأعلى في معدل الغياب", tag:"tag-detect", label:"Detection" },
+      { icon:"🎯", name:"Smart Onboarding", desc:"بيخصص تجربة الانضمام لكل موظف جديد بناءً على دوره وقسمه ويتابع تقدمه تلقائياً", tag:"tag-auto", label:"Automation" }
+    ]},
+    { rank:"4", name:"Deputy", sub:"AI Scheduling", features:[
+      { icon:"📊", name:"Demand Forecasting AI", desc:"بيتنبأ بحجم العمل المتوقع بناءً على بيانات تاريخية وعوامل خارجية زي الطقس والمناسبات لتحديد عدد الموظفين المطلوب", tag:"tag-predict", label:"Predictive" },
+      { icon:"📅", name:"AI Auto-Scheduling", desc:"بيوزع الشيفتات تلقائياً على الموظفين المتاحين مع مراعاة مهاراتهم وتفضيلاتهم وقواعد العمل", tag:"tag-auto", label:"Automation" }
+    ]},
+    { rank:"5", name:"ZKTeco", sub:"Face Recognition AI", features:[
+      { icon:"👁️", name:"Face Recognition AI", desc:"بيتعرف على وجه الموظف في ثانية واحدة بدقة عالية جداً، يستحيل تسجيل حضور شخص بدلاً من تاني", tag:"tag-detect", label:"Detection" },
+      { icon:"🔍", name:"Liveness Detection", desc:"بيكشف محاولات الغش باستخدام صورة أو فيديو بدل الوجه الحقيقي، AI عميق لمنع الاحتيال", tag:"tag-detect", label:"Detection" },
+      { icon:"🧠", name:"Deep Learning Recognition", desc:"بيتحسن بمرور الوقت، يتكيف مع تغييرات الوجه زي النظارات أو الشعر أو الشيخوخة بدون إعادة تسجيل", tag:"tag-detect", label:"Detection" }
+    ]}
+  ]
+};
+
+const cats = Object.keys(data);
+let active = cats[0];
+
+const tabs = document.getElementById('tabs');
+const grid = document.getElementById('grid');
+
+cats.forEach(cat => {
+  const btn = document.createElement('button');
+  btn.className = 'tab-btn' + (cat === active ? ' active' : '');
+  btn.textContent = cat;
+  btn.onclick = () => {
+    active = cat;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    render();
+  };
+  tabs.appendChild(btn);
+});
+
+function render() {
+  const tools = data[active];
+  grid.innerHTML = '';
+  tools.forEach(tool => {
+    const card = document.createElement('div');
+    card.className = 'tool-card' + (tool.limited ? ' limited' : '');
+    card.innerHTML = `
+      <div class="tool-header">
+        <span class="tool-rank">${tool.rank}</span>
+        <div>
+          <div class="tool-name">${tool.name}</div>
+          <div class="tool-sub">${tool.sub}</div>
+        </div>
+      </div>
+      <div class="ai-list">
+        ${tool.features.map(f => `
+          <div class="ai-feature">
+            <div class="ai-icon">${f.icon}</div>
+            <div class="ai-text">
+              <div class="ai-name">${f.name}</div>
+              <div class="ai-desc">${f.desc}</div>
+              <span class="ai-tag ${f.tag}">${f.label}</span>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+render();
+</script>
